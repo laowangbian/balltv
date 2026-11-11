@@ -17,8 +17,8 @@ public final class Feeds {
     }
     public static class Line {public String name,id,url,referer=""; public Line(String n,String i,String u){name=n;id=i;url=u;}}
     public static class Page {public ArrayList<Match> items=new ArrayList<Match>();public boolean more;public String cursor="",note="";}
-    public static String base(String source){if(source.equals("咖啡"))return COFFEE;if(source.equals("豆包"))return DOUBAO;return MoreSources.base(source);}
-    public static Page fetch(String source,String view,int page,String cursor)throws Exception{if(SourceCatalog.additional(source))return MoreSources.fetch(source,view,page);Page result=parse(source,view,get(source,path(source,view,page,cursor)));if(source.equals("豆包")&&view.equals("live")){try{Page schedules=parse(source,"schedule",get(source,path(source,"schedule",1,"")));for(Match m:result.items)for(Match s:schedules.items)if(m.id.equals(s.id)){m.home=s.home;m.away=s.away;m.time=s.time;m.score=s.score;m.sport=s.sport;m.raw.put("match",s.raw.optJSONObject("match"));}}catch(Exception ignored){}}return result;}
+    public static String base(String source){if(source.equals(BiliEsports.NAME))return BiliEsports.BASE;if(source.equals(HuyaEsports.NAME))return HuyaEsports.BASE;if(source.equals(KuaishouEsports.NAME))return KuaishouEsports.BASE;if(source.equals(HaixingSource.NAME))return HaixingSource.BASE;if(source.equals("咖啡"))return COFFEE;if(source.equals("豆包"))return DOUBAO;return MoreSources.base(source);}
+    public static Page fetch(String source,String view,int page,String cursor)throws Exception{if(source.equals(BiliEsports.NAME))return BiliEsports.fetch(view,page);if(source.equals(HuyaEsports.NAME))return HuyaEsports.fetch(view,page);if(source.equals(KuaishouEsports.NAME))return KuaishouEsports.fetch(view,page);if(source.equals(HaixingSource.NAME))return HaixingSource.fetch(view,page);if(SourceCatalog.additional(source))return MoreSources.fetch(source,view,page);Page result=parse(source,view,get(source,path(source,view,page,cursor)));if(source.equals("豆包")&&view.equals("live")){try{Page schedules=parse(source,"schedule",get(source,path(source,"schedule",1,"")));for(Match m:result.items)for(Match s:schedules.items)if(m.id.equals(s.id)){m.home=s.home;m.away=s.away;m.time=s.time;m.score=s.score;m.sport=s.sport;m.raw.put("match",s.raw.optJSONObject("match"));}}catch(Exception ignored){}}return result;}
     public static String absolute(String base,String u){if(u==null||u.isEmpty())return "";try{return new URL(new URL(base),u).toString();}catch(Exception e){return "";}}
     public static String str(JSONObject o,String...keys){if(o==null)return "";for(String key:keys){String s=o.optString(key,"");if(!s.isEmpty()&&!s.equals("null"))return s;}return "";}
     static JSONArray array(JSONObject o,String key){JSONArray a=o.optJSONArray(key);return a==null?new JSONArray():a;}
@@ -47,6 +47,10 @@ public final class Feeds {
         if(coffee&&view.equals("live"))p.more=false;return p;
     }
     public static ArrayList<Line> lines(Match m)throws Exception {
+        if(m.source.equals(BiliEsports.NAME))return BiliEsports.lines(m);
+        if(m.source.equals(HuyaEsports.NAME))return HuyaEsports.lines(m);
+        if(m.source.equals(KuaishouEsports.NAME))return KuaishouEsports.lines(m);
+        if(m.source.equals(HaixingSource.NAME))return HaixingSource.lines(m);
         if(SourceCatalog.additional(m.source))return MoreSources.lines(m);
         if(m.source.equals("咖啡")){JSONObject data=get(m.source,m.kind.equals("replay")?"/api/v1/match/"+m.id+"/recordings":"/api/v1/room/"+m.room,true).optJSONObject("data");if(data==null)throw new IOException("详情为空");return parseLines(m,data);}
         if(m.kind.equals("replay")){return parseLines(m,m.raw);}
@@ -54,6 +58,7 @@ public final class Feeds {
     }
     public static ArrayList<Line> parseLines(Match m,JSONObject data){ArrayList<Line> result=new ArrayList<Line>();JSONArray a=array(data,m.source.equals("咖啡")?(m.kind.equals("replay")?"replays":"signals"):m.kind.equals("replay")?"lines":"signals");for(int i=0;i<a.length();i++){JSONObject o=a.optJSONObject(i);if(o==null)continue;String url=str(o,"stream_url","video_url","url","proxyUrl"),id=str(o,"playId","routeId");if(m.source.equals("豆包")&&m.kind.equals("live")){id=id.isEmpty()?url.replaceFirst("^/play/",""):id;url="";}else url=absolute(base(m.source),url);String name=str(o,"name","title");if(url.isEmpty()&&id.isEmpty())continue;result.add(new Line(name.isEmpty()?"线路 "+(i+1):name,id,url));}if(result.isEmpty()&&m.source.equals("豆包")&&!m.room.isEmpty()&&!m.kind.equals("replay"))result.add(new Line("默认线路",m.room,""));return result;}
     public static String resolve(Match m,Line line)throws Exception{
+        if(SourceCatalog.esports(m.source))return line.url;
         if(SourceCatalog.additional(m.source))return MoreSources.resolve(m,line);
         if(m.source.equals("豆包")&&m.kind.equals("live")){JSONObject d=get(m.source,"/api/v1/public/signals/"+line.id+"/play").optJSONObject("data");if(d==null||!d.optBoolean("playable",true))throw new IOException("此线路当前不可播放");String u=str(d,"url");if(u.isEmpty())throw new IOException("未返回播放地址");return absolute(DOUBAO,u);}
         return line.url;

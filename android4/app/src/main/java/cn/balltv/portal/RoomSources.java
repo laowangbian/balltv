@@ -38,7 +38,7 @@ public final class RoomSources {
   for(String key:new String[]{"recommend_lives","hot_lives"}){JSONArray a=data.optJSONArray(key);if(a!=null)for(int i=0;i<a.length();i++){JSONObject r=a.getJSONObject(i);unique.put(Feeds.str(r,"anchorid"),r);}}
   return new JSONArray(unique.values());
  }
- static String sport(JSONObject r){String v=Feeds.str(r,"category_id","categoryid","category");if(v.equals("1")||v.equals("2"))return v;String title=Feeds.str(r,"title");if(title.matches("(?i).*(CS2|DOTA|LOL|电竞).*"))return "esports";if(title.matches(".*(斯诺克|台球).*"))return "snooker";return "";}
+ static String sport(JSONObject r){String v=Feeds.str(r,"category_id","categoryid","category");if(v.equals("1")||v.equals("2"))return v;String title=Feeds.str(r,"title");if(Esports.tournament(title))return "esports";if(title.matches(".*(斯诺克|台球).*"))return "snooker";return "";}
  public static boolean allowed(JSONObject r){String title=Feeds.str(r,"title");return !Feeds.str(r,"anchorid").isEmpty()&&!sport(r).isEmpty()&&!title.isEmpty()&&!SourceSafety.promotional(title+" "+Feeds.str(r,"anchor_name")+" "+Feeds.str(r.optJSONObject("anchor"),"nick_name"))&&!title.matches(".*(回放|重播|录播).* ".trim())&&r.optInt("ticket")==0&&r.optInt("price")==0&&r.optInt("room_type")==0&&r.optInt("isvideo")==0&&r.optInt("reply_video")==0&&r.optInt("animation")==0&&r.optString("password").isEmpty()&&r.optLong("end_stamp")==0&&(!r.has("status")||r.optInt("status")==1)&&r.optInt("islive",1)==1;}
  static Feeds.Page fetch(String source,String view,int number)throws Exception{
   JSONArray current=rooms(source),events=new JSONArray();

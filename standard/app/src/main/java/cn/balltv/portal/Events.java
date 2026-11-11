@@ -14,12 +14,12 @@ public final class Events {
     public static long epoch(String value){if(value==null)return 0;synchronized(TIMES){Long cached=TIMES.get(value);if(cached!=null)return cached;}long parsed=parseEpoch(value);synchronized(TIMES){TIMES.put(value,parsed);}return parsed;}
     static long parseEpoch(String value){if(value==null||value.trim().isEmpty())return 0;String s=value.trim();try{if(s.matches("\\d{10,13}")){long n=Long.parseLong(s);return n<100000000000L?n*1000:n;}boolean utc=s.endsWith("Z");s=s.replace('T',' ').replace("Z","").replaceAll("\\.\\d+$","");for(String pattern:new String[]{"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm"}){SimpleDateFormat f=new SimpleDateFormat(pattern,Locale.US);f.setLenient(false);f.setTimeZone(TimeZone.getTimeZone(utc?"UTC":"Asia/Shanghai"));try{return f.parse(s).getTime();}catch(ParseException ignored){}}}catch(Exception ignored){}return 0;}
     public static String when(String raw){long t=epoch(raw);if(t==0)return raw==null?"":raw;SimpleDateFormat f=new SimpleDateFormat("MM-dd HH:mm",Locale.CHINA);f.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));return f.format(new Date(t));}
-    static String identity(Feeds.Match m){String a=canonical(m.home),b=canonical(m.away);if(a.isEmpty()||b.isEmpty()||a.equals(b)||epoch(m.time)==0||sport(m.sport).isEmpty())return"";return sport(m.sport)+"|"+(a.compareTo(b)<=0?a+"|"+b:b+"|"+a);}
+    static String identity(Feeds.Match m){String a=canonical(m.home),b=canonical(m.away);if(epoch(m.time)==0||sport(m.sport).isEmpty())return"";if(a.isEmpty()||b.isEmpty()||a.equals(b))return KuaishouEsports.eventIdentity(m);return sport(m.sport)+"|"+(a.compareTo(b)<=0?a+"|"+b:b+"|"+a);}
     public static final class Group {
         public final ArrayList<Feeds.Match> members=new ArrayList<Feeds.Match>();public final String identity,id;public final long start;
         Group(Feeds.Match m){identity=identity(m);start=epoch(m.time);id=identity.isEmpty()?m.key():m.kind+"|"+identity+"|"+EventOrder.dayKey(start);members.add(m);}
         public Feeds.Match lead(){Feeds.Match best=members.get(0);for(Feeds.Match m:members)if(!m.estimated&&m.home.length()>0&&(!m.score.trim().equals(":")&&!m.score.isEmpty())){best=m;break;}return best;}
-        public String sources(){StringBuilder s=new StringBuilder();for(Feeds.Match m:members){if(s.length()>0)s.append(" · ");s.append(SourceCatalog.label(m.source));}return s.toString();}
+        public String sources(){StringBuilder s=new StringBuilder();Set<String> seen=new HashSet<>();for(Feeds.Match m:members){if(!seen.add(m.source))continue;if(s.length()>0)s.append(" · ");s.append(SourceCatalog.label(m.source));}return s.toString();}
         public int sourceCount(){Set<String>s=new HashSet<String>();for(Feeds.Match m:members)s.add(m.source);return s.size();}
     }
     public static ArrayList<Group> group(Collection<Feeds.Match> matches){return group(matches,true);}

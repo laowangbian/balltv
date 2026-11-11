@@ -20,7 +20,7 @@ final class Thumbnails {
  Thumbnails(MainActivity a){
   owner=a;
   workers.execute(()->{
-   File[] files=a.getCacheDir().listFiles((dir,name)->name.startsWith("thumb10safe-")||name.startsWith("thumb14-")||name.startsWith("thumb15-"));
+   File[] files=a.getCacheDir().listFiles((dir,name)->name.startsWith("thumb10safe-")||name.startsWith("thumb14-")||name.startsWith("thumb15-")||name.startsWith("thumb16-live-"));
    if(files!=null){Arrays.sort(files,(x,y)->Long.compare(y.lastModified(),x.lastModified()));for(int i=64;i<files.length;i++)files[i].delete();}
   });
  }
@@ -113,12 +113,18 @@ final class Thumbnails {
   });
  }
  Bitmap load(Events.Group group)throws Exception{
- ArrayList<Feeds.Match> choices=SourcePreferences.filter(owner,group.members);Collections.sort(choices,(x,y)->Boolean.compare(StreamHealth.good(x,System.currentTimeMillis())==null,StreamHealth.good(y,System.currentTimeMillis())==null));
+ ArrayList<Feeds.Match> choices=SourcePreferences.filter(owner,group.members);long rankedAt=System.currentTimeMillis();
+ Map<Feeds.Match,Integer> coverRanks=new HashMap<>();
+ for(Feeds.Match match:choices){
+  StreamHealth.Good good=StreamHealth.good(match,rankedAt);
+  coverRanks.put(match,good==null?Integer.MAX_VALUE:LineQuality.lineScore(match,good.line,rankedAt));
+ }
+ Collections.sort(choices,(a,b)->Integer.compare(coverRanks.get(a),coverRanks.get(b)));
  long full=budget.get();budget.set(Math.min(full,System.nanoTime()+2500000000L));Set<String> posters=new HashSet<String>();int attempts=0;
  for(Feeds.Match m:choices){if(owner.view.equals("live"))break;if(!canLoad())break;if(!posterUrl(m.cover)||!posters.add(m.cover))continue;if(attempts++>=4)break;try{Bitmap poster=decode(download(m.cover,Feeds.base(m.source)+"/",900000));if(poster!=null){if(PreviewFrames.acceptable(poster,m.sport))return poster;poster.recycle();}}catch(Exception ignored){}}
  budget.set(full);Set<String> urls=new HashSet<String>();attempts=0;
- for(Feeds.Match m:choices){if(!canLoad())return null;StreamHealth.Good good=StreamHealth.good(m,System.currentTimeMillis());if(good==null||!urls.add(good.url))continue;android.util.Log.d("BallTVCover","media "+m.sport+" "+(good.fingerprint.equals("flv")?"flv":"hls"));if(attempts++>=(lean?1:2))break;try{String ref=good.line.referer.isEmpty()?Feeds.base(m.source)+"/":good.line.referer;byte[] shared=ProbeFrames.take(StreamHealth.key(m),System.currentTimeMillis());if(shared!=null){try{Bitmap evidence=good.fingerprint.equals("flv")?acceptedFlv(shared,m.sport):fromSample(shared,good.initUrl,ref,m.sport);if(evidence!=null)return evidence;}catch(Exception ignored){}}Bitmap result=lean?null:good.fingerprint.equals("flv")?acceptedFlv(download(good.url,ref,2500000),m.sport):!good.previewUrl.isEmpty()&&System.currentTimeMillis()-good.at<30000?segment(good.previewUrl,good.initUrl,ref,m.sport):frame(good.url,ref,0,m.sport,m.kind.equals("replay"));if(result!=null)return result;}catch(Exception ignored){android.util.Log.d("BallTVCover","media miss "+ignored.getClass().getSimpleName());}if(canLoad()){try{VideoEvidence.Result evidence=VideoEvidence.capture(owner,good.url,good.line.referer.isEmpty()?Feeds.base(m.source)+"/":good.line.referer,m.sport,()->!closed&&owner.quietForImages(),lean?4500:6000);if(!evidence.attempted)decoderBusy.set(true);if(evidence.cover!=null)return evidence.cover;}catch(Exception ignored){}}}
- if(!owner.view.equals("live")&&canLoad())for(Feeds.Match m:choices)try{ArrayList<Feeds.Line> lines=Feeds.lines(m);if(lines.isEmpty())continue;Feeds.Line line=lines.get(0);return frame(Feeds.resolve(m,line),line.referer.isEmpty()?Feeds.base(m.source)+"/":line.referer,0,m.sport,m.kind.equals("replay"));}catch(Exception ignored){break;}
+ for(Feeds.Match m:choices){if(!canLoad())return null;StreamHealth.Good good=StreamHealth.good(m,System.currentTimeMillis());if(good==null||coverRanks.get(m)>=100||!urls.add(good.url))continue;android.util.Log.d("BallTVCover","media "+m.sport+" "+(good.fingerprint.equals("flv")?"flv":"hls"));if(attempts++>=(lean?1:2))break;try{String ref=good.line.referer.isEmpty()?Feeds.base(m.source)+"/":good.line.referer;byte[] shared=ProbeFrames.take(StreamHealth.key(m),System.currentTimeMillis());if(shared!=null){try{Bitmap evidence=good.fingerprint.equals("flv")?acceptedFlv(shared,m.sport):fromSample(shared,good.initUrl,ref,m.sport);if(usableCover(evidence,m,good))return evidence;}catch(Exception ignored){}}Bitmap result=lean?null:good.fingerprint.equals("flv")?acceptedFlv(download(good.url,ref,2500000),m.sport):!good.previewUrl.isEmpty()&&System.currentTimeMillis()-good.at<30000?segment(good.previewUrl,good.initUrl,ref,m.sport):frame(good.url,ref,0,m.sport,m.kind.equals("replay"));if(usableCover(result,m,good))return result;}catch(Exception ignored){android.util.Log.d("BallTVCover","media miss "+ignored.getClass().getSimpleName());}}
+ if(!Ui.LEAN&&!owner.view.equals("live")&&canLoad())for(Feeds.Match m:choices)try{ArrayList<Feeds.Line> lines=Feeds.lines(m);if(lines.isEmpty())continue;Feeds.Line line=lines.get(0);return frame(Feeds.resolve(m,line),line.referer.isEmpty()?Feeds.base(m.source)+"/":line.referer,0,m.sport,m.kind.equals("replay"));}catch(Exception ignored){break;}
  return null;
  }
  boolean canLoad(){Long end=budget.get();return !closed&&owner.quietForImages()&&(end==null||System.nanoTime()<end);}
@@ -151,4 +157,12 @@ final class Thumbnails {
   for(ImageView image:bound.keySet())if(key.equals(image.getTag()))displayedAt.remove(image);
  }
  void close(){closed=true;workers.shutdownNow();waiting.clear();}
+ boolean usableCover(Bitmap image, Feeds.Match match, StreamHealth.Good good) {
+  if(image==null)return false;
+  if(!match.kind.equals("live"))return true;
+  int content=LineQuality.frame(PreviewFrames.sample(image),match.sport);
+  if(LineQuality.restrictedLabel(good.line.name)||(content==LineQuality.SUSPECT||content==LineQuality.MIXED)){image.recycle();return false;}
+  if(content==LineQuality.MATCH)LineQuality.record(match,good.line,content,0,System.currentTimeMillis());
+  return true;
+ }
 }
