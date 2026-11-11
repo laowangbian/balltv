@@ -1,0 +1,302 @@
+[
+  {
+    "id": "coffee",
+    "name": "咖啡直播",
+    "urls": [
+      "https://kafeizhibo.cc/pc/schedule",
+      "https://kafeizhibo.cc/",
+      "https://kafeizhibo.com/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "动态页面 · 待实测",
+    "source": "https://kafeizhibo.cc/",
+    "note": "检索到动态加载页面；备用域名来自页面索引，播放未实测。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "wanqiu",
+    "name": "玩球 TV",
+    "urls": [
+      "https://www.wanqiu.tv/",
+      "https://m.wanqiu.tv/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "已读到赛事页面 · 待实测",
+    "source": "https://www.wanqiu.tv/",
+    "note": "名称相近的网站较多，此条使用检索到有赛事列表的玩球 TV，不保证与用户所指玩球直播为同一运营方。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "jrkan",
+    "name": "JRKAN",
+    "urls": [
+      "https://www.jrkan.com/",
+      "https://www.jrs0.com/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "已读到导航页面 · 待实测",
+    "source": "https://www.jrkan.com/",
+    "note": "主站页面自述为第三方赛事导航，检索时显示暂无赛事。备用为公开目录收录的发布页。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "leqiu",
+    "name": "乐球直播（同名候选）",
+    "urls": [
+      "https://www.leqiu-ppsport.com/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "同名候选 · 待核实",
+    "source": "https://www.leqiu-ppsport.com/",
+    "note": "可读到赛事列表，但未确认品牌归属，且列表可能滞后。可编辑为你熟悉的地址。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "178",
+    "name": "178 直播",
+    "urls": [
+      "http://178zhibo.cc/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.wangzhiku.com/w/7856/",
+    "note": "来自公开网址目录，未确认当前实际直播能力。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "88",
+    "name": "88 看球",
+    "urls": [
+      "https://www.88kq.in/",
+      "https://www.88kanqiu.la/",
+      "https://www.88kanqiu.one/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "发布页已读 · 待实测",
+    "source": "https://www.88kq.in/",
+    "note": "线路一为地址发布页，后两条为发布页所列观赛域名；镜像并不计作独立平台。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "yuyan",
+    "name": "雨燕直播",
+    "urls": [
+      "https://yyzb1.tv/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "公开目录收录，未核实站点归属与播放能力。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "heibai",
+    "name": "黑白直播",
+    "urls": [
+      "http://www.heibaizhibo.com/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.wangzhiku.com/w/7885/",
+    "note": "使用公开目录历史收录地址；没有采用检索中冒用高校页面的同名结果。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "360",
+    "name": "360 吧",
+    "urls": [
+      "https://www.360ba.tv/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "此名称不代表与 360 公司存在关系。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "baba",
+    "name": "足球巴巴",
+    "urls": [
+      "https://www.zqbaba.org/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "公开目录收录，未核实站点归属与播放能力。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "74",
+    "name": "74 体育",
+    "urls": [
+      "https://www.74001.tv/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "公开目录收录，未核实站点归属与播放能力。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "857",
+    "name": "857 直播",
+    "urls": [
+      "https://857zbw.live/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "公开目录收录，未核实站点归属与播放能力。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "livetv",
+    "name": "LiveTV",
+    "urls": [
+      "http://livetv.sx/"
+    ],
+    "tags": "足球 篮球 网球 冰球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "外文体育导航；地区网络可用性不同。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "b8",
+    "name": "B8B8",
+    "urls": [
+      "https://www.b8b8.tv/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "外文体育入口；尚未核实当前内容。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "kqdh",
+    "name": "看球直播导航",
+    "urls": [
+      "https://www.kqzbdh.com/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "目录收录 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "导航站点，可用于自行寻找和更新入口。",
+    "checked": "2026-11-09",
+    "group": "第三方",
+    "type": "web"
+  },
+  {
+    "id": "zhibo8",
+    "name": "直播吧",
+    "urls": [
+      "https://www.zhibo8.cc/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "补充入口 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "补充赛程、资讯及平台提供的直播内容，不保证每场有免费视频。",
+    "checked": "2026-11-09",
+    "group": "补充",
+    "type": "web"
+  },
+  {
+    "id": "qq",
+    "name": "腾讯体育",
+    "urls": [
+      "https://sports.qq.com/kbsweb/"
+    ],
+    "tags": "足球 篮球 网球 综合",
+    "status": "补充入口 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "部分内容可能需要登录或付费。",
+    "checked": "2026-11-09",
+    "group": "补充",
+    "type": "web"
+  },
+  {
+    "id": "qie",
+    "name": "企鹅体育",
+    "urls": [
+      "https://live.qq.com/"
+    ],
+    "tags": "足球 篮球 综合",
+    "status": "补充入口 · 待实测",
+    "source": "https://www.haoruanmao.com/7573.html",
+    "note": "内容和开放情况以平台为准。",
+    "checked": "2026-11-09",
+    "group": "补充",
+    "type": "web"
+  },
+  {
+    "id": "cctv",
+    "name": "央视体育",
+    "urls": [
+      "https://sports.cctv.com/"
+    ],
+    "tags": "足球 篮球 乒乓球 羽毛球 综合",
+    "status": "补充入口 · 待实测",
+    "source": "https://sports.cctv.com/",
+    "note": "补充官方赛事及频道入口。",
+    "checked": "2026-11-09",
+    "group": "补充",
+    "type": "web"
+  },
+  {
+    "id": "huya",
+    "name": "虎牙直播",
+    "urls": [
+      "https://www.huya.com/"
+    ],
+    "tags": "电竞 综合",
+    "status": "补充入口 · 待实测",
+    "source": "https://www.huya.com/",
+    "note": "部分体育与电竞赛事是否开放以平台为准。",
+    "checked": "2026-11-09",
+    "group": "补充",
+    "type": "web"
+  },
+  {
+    "id": "bili",
+    "name": "哔哩哔哩直播",
+    "urls": [
+      "https://live.bilibili.com/"
+    ],
+    "tags": "足球 电竞 综合",
+    "status": "补充入口 · 待实测",
+    "source": "https://live.bilibili.com/",
+    "note": "补充平台提供的体育、电竞直播入口。",
+    "checked": "2026-11-09",
+    "group": "补充",
+    "type": "web"
+  }
+]

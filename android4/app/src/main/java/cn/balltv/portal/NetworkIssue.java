@@ -1,0 +1,6 @@
+package cn.balltv.portal;
+import java.net.*;import javax.net.ssl.*;import java.security.cert.*;import java.util.*;
+/** Human-readable categories, with no stream URL, token, or exception dump in UI. */
+public final class NetworkIssue {
+ public static String describe(Throwable error){Set<Throwable> seen=new HashSet<Throwable>();boolean dns=false,cert=false,tls=false,timeout=false,route=false;for(Throwable e=error;e!=null&&seen.add(e);e=e.getCause()){dns|=e instanceof UnknownHostException;cert|=e instanceof CertificateException||e instanceof SSLPeerUnverifiedException;tls|=e instanceof SSLHandshakeException;timeout|=e instanceof SocketTimeoutException;route|=e instanceof ConnectException||e instanceof NoRouteToHostException;}if(dns)return "域名解析失败，请检查电视网络或 DNS";if(cert)return "证书验证失败，请检查设备日期及系统证书";if(tls)return "TLS 握手失败，请查看网络诊断";if(timeout)return "连接超时，可重试或切换网络测试";if(route)return "无法连接服务器，请检查网络线路";String message=error.getMessage()==null?"":error.getMessage();java.util.regex.Matcher code=java.util.regex.Pattern.compile("HTTP (\\d{3})").matcher(message);if(code.find())return "服务器返回 HTTP "+code.group(1)+(code.group(1).equals("403")?"，可能为访问限制":"");if(message.contains("JSON")||message.contains("来源未返回"))return "来源返回内容异常或验证页面";return "来源暂不可用（"+error.getClass().getSimpleName()+"）";}
+}

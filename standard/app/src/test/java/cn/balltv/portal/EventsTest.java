@@ -1,0 +1,13 @@
+package cn.balltv.portal;
+import org.junit.Test;import static org.junit.Assert.*;import java.util.*;import org.json.*;
+public class EventsTest {
+    Feeds.Match match(String source,String home,String away,String time,String sport)throws Exception{Feeds.Match m=new Feeds.Match();m.source=source;m.id=source;m.home=home;m.away=away;m.title=home+" vs "+away;m.time=time;m.sport=sport;m.status="live";m.raw=new JSONObject();return m;}
+    @Test public void sameNbaFixtureJoinsAcrossLongAndShortNames()throws Exception{Feeds.Match a=match("咖啡","国王","热火","2026-11-09 10:00","2"),b=match("178直播","萨克拉门托国王","迈阿密热火","2026-11-09T02:00:00Z","basketball");ArrayList<Events.Group> groups=Events.group(Arrays.asList(a,b));assertEquals(1,groups.size());assertEquals(2,groups.get(0).sourceCount());}
+    @Test public void reversedTeamsStillMatchButRetainPairedScores()throws Exception{Feeds.Match a=match("A","国王","热火","2026-11-09 10:00","2"),b=match("B","热火","国王","2026-11-09 10:00","2");a.score="12 : 18";b.score="18 : 12";Events.Group g=Events.group(Arrays.asList(a,b)).get(0);assertEquals(2,g.members.size());assertEquals("12 : 18",g.lead().score);}
+    @Test public void differentDateOrSportNeverJoin()throws Exception{Feeds.Match a=match("A","甲","乙","2026-11-09 10:00","football"),b=match("B","甲","乙","2026-11-10 10:00","football"),c=match("C","甲","乙","2026-11-09 10:00","basketball");assertEquals(3,Events.group(Arrays.asList(a,b,c)).size());}
+    @Test public void missingStartOrGenericNamesStaySeparate()throws Exception{Feeds.Match a=match("A","甲","乙","","2"),b=match("B","甲","乙","","2");assertEquals(2,Events.group(Arrays.asList(a,b)).size());}
+    @Test public void separateDoubleHeaderAndDoNotMergeBySubstring()throws Exception{Feeds.Match a=match("A","曼联","曼城","2026-11-09 10:00","1"),b=match("B","曼联U21","曼城","2026-11-09 10:00","1"),c=match("C","曼联","曼城","2026-11-09 14:00","1");assertEquals(3,Events.group(Arrays.asList(a,b,c)).size());}
+    @Test public void replayAndLiveHaveDistinctIdsAndGroups()throws Exception{Feeds.Match a=match("A","甲","乙","2026-11-09 10:00","1"),b=match("B","甲","乙","2026-11-09 10:00","1");b.kind="replay";ArrayList<Events.Group> g=Events.group(Arrays.asList(a,b));assertEquals(2,g.size());assertNotEquals(g.get(0).id,g.get(1).id);}
+    @Test public void historyCanKeepEncounterOrder()throws Exception{Feeds.Match a=match("A","甲","乙","2026-11-09 10:00","1"),b=match("B","丙","丁","2026-11-09 08:00","1");assertEquals("甲",Events.group(Arrays.asList(a,b),false).get(0).lead().home);}
+    @Test public void utcAndLocalTimesAgreeOnKitkatCompatibleParser(){assertEquals(Events.epoch("2026-11-09 10:00"),Events.epoch("2026-11-09T02:00:00.000Z"));assertEquals(0,Events.epoch("not-a-time"));}
+}

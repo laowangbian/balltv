@@ -1,0 +1,8 @@
+FSRCNNX x2 8-0-4-1
+Copyright (C) 2017-2021 igv
+LGPL-3.0-or-later
+https://github.com/igv/FSRCNN-TensorFlow/releases/tag/1.1
+
+Modified 2026-11-10 by BallTV: adapted mpv texture bindings to Android GLES, retained all learned weights, PReLU and residual paths. The integration adds BT.709 color conversion, half-float feature maps, chroma preservation and performance fallback. Model shaders are a separately replaceable component; full original and adapted source are provided with the app source package.
+
+                   

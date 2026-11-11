@@ -1,0 +1,36 @@
+package cn.balltv.portal;
+import android.app.*;
+import android.os.*;
+import android.content.*;
+import android.graphics.*;
+import android.net.http.SslError;
+import android.view.*;
+import android.webkit.*;
+import android.widget.*;
+
+public class BrowserActivity extends Activity {
+    WebView web;FrameLayout frame,full;LinearLayout base,toolbar;TextView status;Pointer pointer;View custom;WebChromeClient.CustomViewCallback callback;boolean mouse,desktop;String initial;int x,y;
+    public void onCreate(Bundle b){super.onCreate(b);getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);initial=getIntent().getStringExtra("url");if(!Ui.webUrl(initial)){finish();return;}
+        frame=new FrameLayout(this);base=Ui.column(this);base.setBackgroundColor(Ui.BG);frame.addView(base);setContentView(frame);HorizontalScrollView hs=new HorizontalScrollView(this);toolbar=new LinearLayout(this);hs.addView(toolbar);base.addView(hs);
+        toolbar.addView(Ui.button(this,"首页",v->finish()));toolbar.addView(Ui.button(this,"后退",v->{if(web.canGoBack())web.goBack();}));toolbar.addView(Ui.button(this,"刷新",v->web.reload()));toolbar.addView(Ui.button(this,"鼠标",v->toggleMouse()));toolbar.addView(Ui.button(this,"上翻",v->web.pageUp(false)));toolbar.addView(Ui.button(this,"下翻",v->web.pageDown(false)));toolbar.addView(Ui.button(this,"外部打开",v->Ui.external(this,web.getUrl()==null?initial:web.getUrl(),false)));toolbar.addView(Ui.button(this,"桌面/移动",v->agent()));
+        status=Ui.text(this,"加载中… 菜单键切换鼠标",13,Ui.MUTED);base.addView(status);web=new WebView(this);base.addView(web,new LinearLayout.LayoutParams(-1,0,1));web.setBackgroundColor(Color.BLACK);WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setUseWideViewPort(true);s.setLoadWithOverviewMode(true);s.setMediaPlaybackRequiresUserGesture(false);s.setAllowFileAccess(false);s.setAllowContentAccess(false);s.setSupportMultipleWindows(true);s.setJavaScriptCanOpenWindowsAutomatically(false);s.setBuiltInZoomControls(true);s.setDisplayZoomControls(false);
+        if(Build.VERSION.SDK_INT>=21){s.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);CookieManager.getInstance().setAcceptThirdPartyCookies(web,true);}
+        web.setWebViewClient(new WebViewClient(){public boolean shouldOverrideUrlLoading(WebView w,String url){if(Ui.webUrl(url))return false;Toast.makeText(BrowserActivity.this,"已阻止网页唤起其他应用",Toast.LENGTH_SHORT).show();return true;}
+            public void onPageFinished(WebView w,String u){status.setText(u+"  · 菜单键切换鼠标");}
+            public void onReceivedError(WebView w,int code,String description,String url){status.setText("网页加载失败："+description+"。可刷新、换线路或外部打开。");}
+            public void onReceivedSslError(WebView w,SslErrorHandler h,SslError e){h.cancel();status.setText("证书验证失败。请检查盒子日期、换线路或使用较新的外部浏览器。");}});
+        web.setWebChromeClient(new WebChromeClient(){public void onProgressChanged(WebView v,int p){if(p<100)status.setText("正在加载 "+p+"% · "+getIntent().getStringExtra("name"));}
+            public boolean onCreateWindow(WebView v,boolean dialog,boolean gesture,Message result){if(!gesture)return false;final WebView temp=new WebView(BrowserActivity.this);temp.setWebViewClient(new WebViewClient(){public boolean shouldOverrideUrlLoading(WebView w,final String url){if(Ui.webUrl(url))new AlertDialog.Builder(BrowserActivity.this).setTitle("网站请求打开新页面").setMessage(url).setPositiveButton("打开",(d,k)->web.loadUrl(url)).setNegativeButton("取消",null).show();temp.destroy();return true;}});((WebView.WebViewTransport)result.obj).setWebView(temp);result.sendToTarget();return true;}
+            public void onShowCustomView(View v,CustomViewCallback c){if(custom!=null){c.onCustomViewHidden();return;}custom=v;callback=c;base.setVisibility(View.GONE);pointer.setVisibility(View.GONE);full=new FrameLayout(BrowserActivity.this);full.setBackgroundColor(Color.BLACK);full.addView(v,new FrameLayout.LayoutParams(-1,-1));frame.addView(full,new FrameLayout.LayoutParams(-1,-1));full.requestFocus();getWindow().getDecorView().setSystemUiVisibility(5894);}
+            public void onHideCustomView(){hideVideo();}});
+        web.setDownloadListener((url,agent,disposition,mime,length)->Toast.makeText(this,"此应用不下载网站提供的安装包或文件",Toast.LENGTH_LONG).show());pointer=new Pointer();pointer.setVisibility(View.GONE);frame.addView(pointer,new FrameLayout.LayoutParams(-1,-1));web.loadUrl(initial);web.requestFocus();}
+    void agent(){desktop=!desktop;web.getSettings().setUserAgentString(desktop?"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36":null);status.setText(desktop?"已切到桌面模式":"已切到移动模式");web.reload();}
+    void hideVideo(){if(custom==null)return;frame.removeView(full);custom=null;if(callback!=null){callback.onCustomViewHidden();callback=null;}base.setVisibility(View.VISIBLE);pointer.setVisibility(mouse?View.VISIBLE:View.GONE);getWindow().getDecorView().setSystemUiVisibility(0);web.requestFocus();}
+    void toggleMouse(){if(custom!=null)return;mouse=!mouse;if(mouse){int[] loc=new int[2];web.getLocationInWindow(loc);x=web.getWidth()/2;y=web.getHeight()/2;}pointer.setVisibility(mouse?View.VISIBLE:View.GONE);pointer.invalidate();status.setText(mouse?"鼠标模式：方向键移动 · 确定点击 · 返回退出 · 边缘滚屏":"方向键焦点模式 · 菜单键切换鼠标");web.requestFocus();}
+    public boolean dispatchKeyEvent(KeyEvent e){int k=e.getKeyCode();if(k==KeyEvent.KEYCODE_MENU){if(e.getAction()==KeyEvent.ACTION_DOWN&&e.getRepeatCount()==0)toggleMouse();return true;}if(mouse&&custom==null&&(k==19||k==20||k==21||k==22||k==23||k==66)){if(e.getAction()==KeyEvent.ACTION_DOWN){int step=Ui.dp(this,e.getRepeatCount()>6?24:12);if(k==19){y-=step;if(y<10)web.scrollBy(0,-step*4);}if(k==20){y+=step;if(y>web.getHeight()-10)web.scrollBy(0,step*4);}if(k==21){x-=step;if(x<10)web.scrollBy(-step*4,0);}if(k==22){x+=step;if(x>web.getWidth()-10)web.scrollBy(step*4,0);}x=Math.max(8,Math.min(web.getWidth()-8,x));y=Math.max(8,Math.min(web.getHeight()-8,y));if((k==23||k==66)&&e.getRepeatCount()==0){long t=SystemClock.uptimeMillis();MotionEvent down=MotionEvent.obtain(t,t,0,x,y,0),up=MotionEvent.obtain(t,t+40,1,x,y,0);web.dispatchTouchEvent(down);web.dispatchTouchEvent(up);down.recycle();up.recycle();}pointer.invalidate();}return true;}return super.dispatchKeyEvent(e);}
+    public void onBackPressed(){if(custom!=null){hideVideo();return;}if(mouse){toggleMouse();return;}if(web.canGoBack())web.goBack();else finish();}
+    protected void onPause(){super.onPause();web.onPause();}protected void onResume(){super.onResume();if(web!=null)web.onResume();}
+    protected void onDestroy(){hideVideo();if(web!=null){web.stopLoading();base.removeView(web);web.destroy();}super.onDestroy();}
+    class Pointer extends View{Paint p=new Paint(3);Pointer(){super(BrowserActivity.this);setFocusable(false);setClickable(false);}protected void onDraw(Canvas c){if(!mouse)return;int[] a=new int[2],b=new int[2];web.getLocationInWindow(a);getLocationInWindow(b);float px=x+a[0]-b[0],py=y+a[1]-b[1];p.setColor(0xcc000000);c.drawCircle(px,py,Ui.dp(getContext(),10),p);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3);p.setColor(Ui.GREEN);c.drawCircle(px,py,Ui.dp(getContext(),8),p);c.drawLine(px-14,py,px+14,py,p);c.drawLine(px,py-14,px,py+14,p);p.setStyle(Paint.Style.FILL);}}
+}
+

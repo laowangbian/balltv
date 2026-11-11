@@ -1,0 +1,36 @@
+{
+  "name": "RealLife CNN S 2x",
+  "source": "https://github.com/sb2702/websr",
+  "sha256": "28f9853f8a4640dbc2bef0617e8dc5929590f46c16c5a5fd50a9de2502f8724b",
+  "license": "MIT",
+  "passes": [
+    {
+      "file": "pass0.glsl",
+      "binds": [
+        "RGB"
+      ],
+      "save": "L0"
+    },
+    {
+      "file": "pass1.glsl",
+      "binds": [
+        "L0"
+      ],
+      "save": "L1"
+    },
+    {
+      "file": "pass2.glsl",
+      "binds": [
+        "L1"
+      ],
+      "save": "L2"
+    },
+    {
+      "file": "pass3.glsl",
+      "binds": [
+        "L2"
+      ],
+      "save": "SUBCONV1"
+    }
+  ]
+}

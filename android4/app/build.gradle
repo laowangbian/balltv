@@ -1,0 +1,30 @@
+plugins { id 'com.android.application' }
+// AGP injects 2.0.0 for legacy multidex; use the pinned local 2.0.1 AAR instead.
+configurations.configureEach { exclude group: 'androidx.multidex' }
+android {
+    namespace 'cn.balltv.portal'
+    compileSdk 34
+    sourceSets {
+        main.java.srcDir rootProject.file('../shared/java')
+        main.assets.srcDir rootProject.file('../shared/assets')
+        test.java.srcDir rootProject.file('../shared/test')
+    }
+    defaultConfig { applicationId 'cn.balltv.portal'; minSdk 19; targetSdk 34; versionCode 23; versionName '0.15.5-android4'; multiDexEnabled true }
+    tasks.withType(JavaCompile).configureEach { options.encoding = "UTF-8" }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+    buildTypes { release { minifyEnabled false } }
+    // ExoPlayer bundles an unused DownloadService class. This app declares no
+    // services, never downloads media and never posts notifications.
+    lint { disable 'NotificationPermission' }
+}
+dependencies {
+    implementation files("libs/conscrypt-android-2.5.2.aar", "libs/multidex-2.0.1.aar", "libs/exoplayer-effect-2.19.1.aar")
+    // Last Java-7 baseline, so parsing works on KitKat without Java-8 library APIs.
+    implementation 'org.jsoup:jsoup:1.13.1'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20231013'
+}
+
